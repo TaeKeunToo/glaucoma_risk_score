@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glaucoma Risk Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .calculator {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        .frame {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .title-frame {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .input-frame, .output-frame {
+            margin-bottom: 20px;
+        }
+        .input-frame h3, .output-frame h3 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .result {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .odds-ratios {
+            margin-top: 10px;
+        }
+        #chartContainer {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="calculator">
+        <div class="title-frame frame">Glaucoma Risk Calculator</div>
+        <div class="input-frame frame">
+            <h3>Medical History and Laboratory Data</h3>
+            <div class="form-group">
+                <label><input type="checkbox" id="sex_female"> sex (female)</label>
+                <label><input type="checkbox" id="HTN"> Diagnosed HTN</label>
+                <label><input type="checkbox" id="BN_age"> age > median (59 years)</label>
+                <label><input type="checkbox" id="BN_sbp"> HE_sbp > median (120 mmHg)</label>
+                <label><input type="checkbox" id="BN_bmi"> HE_BMI > median (23.852393 kg/m^2)</label>
+                <label><input type="checkbox" id="BN_ast"> HE_ast > median (22 IU/L)</label>
+                <label><input type="checkbox" id="BN_wbc"> HE_WBC > median (6.7 x10^9/L)</label>
+                <label><input type="checkbox" id="BN_bplt"> HE_Bplt > median (235 x10^9/L)</label>
+            </div>
+            <button onclick="calculateRiskScore()">Calculate Risk Score</button>
+        </div>
+        <div class="output-frame frame">
+            <h3>Glaucoma Risk Score</h3>
+            <div id="result" class="result"></div>
+            <div class="odds-ratios">
+                <p><strong>Odds Ratios for Glaucoma Risk Groups:</strong></p>
+                <p>1-2 points: 1.87 (p=0.013)</p>
+                <p>3-4 points: 2.72 (p=0.024)</p>
+                <p>5 or more points: 15.35 (p=0.0000036)</p>
+            </div>
+            <div id="chartContainer">
+                <canvas id="scorePrevalenceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateRiskScore() {
+            const featurePoints = {
+                sex_female: -1,
+                HTN: 2,
+                BN_age: 2,
+                BN_sbp: 1,
+                BN_bmi: -1,
+                BN_ast: 1,
+                BN_wbc: 1,
+                BN_bplt: -1
+            };
+
+            let score = 0;
+            for (const feature in featurePoints) {
+                if (document.getElementById(feature).checked) {
+                    score += featurePoints[feature];
+                }
+            }
+            score = Math.min(score, 7); // Cap the maximum score at 5
+
+            document.getElementById('result').innerText = `Glaucoma Risk Score: ${score} points`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('scorePrevalenceChart').getContext('2d');
+            const scorePrevalenceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['-3', '-2', '-1', '0', '1', '2', '3', '4', '5+'],
+                    datasets: [{
+                        label: 'Prevalence of Glaucoma (%)',
+                        data: [0.92, 1.83, 1.77, 3.05, 4.98, 4.78, 6.87, 9.27, 10.30],
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Risk Score'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Prevalence of Glaucoma (%)'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
