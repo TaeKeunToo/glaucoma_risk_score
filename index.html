@@ -86,10 +86,10 @@
             <h3>Glaucoma Risk Score</h3>
             <div id="result" class="result"></div>
             <div class="odds-ratios">
-                <p><strong>Odds Ratios for Glaucoma Risk Groups:</strong></p>
-                <p>1-2 points: 1.87 (p=0.013)</p>
-                <p>3-4 points: 2.72 (p=0.024)</p>
-                <p>5 or more points: 15.35 (p=0.0000036)</p>
+                <p><strong>Odds Ratios for Glaucoma Risk Groups (validation result):</strong></p>
+                <p>1-2 points: 1.87 fold increased risk (p=0.013)</p>
+                <p>3-4 points: 2.72 fold increased risk (p=0.024)</p>
+                <p>5 or more points: 15.35 fold increased risk (p=0.0000036)</p>
             </div>
             <div id="chartContainer">
                 <canvas id="scorePrevalenceChart"></canvas>
@@ -147,7 +147,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Prevalence of Glaucoma (%)'
+                                text: 'Prevalence of Glaucoma in the Development Set (%)'
                             },
                             beginAtZero: true
                         }
